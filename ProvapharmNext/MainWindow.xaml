@@ -1,0 +1,77 @@
+﻿<Window x:Class="ProvapharmNext.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProvapharmNext"
+        xmlns:self="clr-namespace:models.Models;assembly=models"
+        xmlns:uc="clr-namespace:ProvapharmNext.Controls"
+        xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
+        mc:Ignorable="d"
+        Title="Бровафарм 2.0" Height="450" Width="800" Icon="/Iconshock-Real-Vista-Medical-Emergency.ico">
+
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <ToolBar Grid.Row="0">
+                <Button x:Name="buttonPaste" Content="paste" HorizontalAlignment="Left" VerticalAlignment="Center" Click="ButtonPaste_OnClick"/>
+
+            </ToolBar>
+
+            <TreeView ToolTipService.InitialShowDelay="1" Grid.Row="1" x:Name="TreeViewPreparats" SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="True"></Setter>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type self:Preparat}" ItemsSource="{Binding FileList}">
+
+                        <StackPanel Orientation="Horizontal" >
+                            <TextBlock Text="{Binding Id}" Margin="0,0,5,0"></TextBlock>
+                            <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontWeight="Medium"></TextBlock>
+                            <TextBlock Text="{Binding Name}"  Margin="0,0,5,0"></TextBlock>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type self:PreparatFile}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="["></TextBlock>
+                            <TextBlock Text="{Binding Path=CntPages}"></TextBlock>
+                            <TextBlock Text="] "></TextBlock>
+                            <TextBlock Text="["></TextBlock>
+                            <TextBlock Text="{Binding Path=File.CreationTime.Date,StringFormat={}dd.MM.yyyy}"></TextBlock>
+                            <TextBlock Text="] "></TextBlock>
+                            <TextBlock Text="{Binding Path=File.Name}"></TextBlock>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+
+            <notifications:NotificationArea Grid.Row="1" x:Name="WindowArea" Position="BottomRight" MaxItems="3"/>
+        </Grid>
+
+        <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <uc:PdfViewer x:Name="PdfViewerFront" Grid.Column="0"/>
+            <uc:PdfViewer x:Name="PdfViewerBack" Grid.Column="1"/>
+        </Grid>
+     
+    </Grid>
+</Window>
