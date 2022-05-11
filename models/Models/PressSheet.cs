@@ -5,7 +5,8 @@ namespace models.Models
 {
     public class PressSheet
     {
-        private PressSheetType Type { get; set; } = PressSheetType.TwoSide;
+        public int idx { get; set; }
+        public PressSheetType Type { get; set; } = PressSheetType.TwoSide;
 
         public double Width { get; set; } = 450;
         public double Height { get; set; } = 320;

@@ -21,7 +21,7 @@ namespace models.Service
 
                 var preparat = new Preparat()
                 {
-                    Id = Int32.Parse(row[0]),
+                    Id = int.Parse(row[0]),
                     Name = row[1],
                     Number = row[2]
                 };

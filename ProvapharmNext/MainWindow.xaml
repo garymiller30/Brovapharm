@@ -8,24 +8,28 @@
         xmlns:uc="clr-namespace:ProvapharmNext.Controls"
         xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
         mc:Ignorable="d"
-        Title="Бровафарм 2.0" Height="450" Width="800" Icon="/Iconshock-Real-Vista-Medical-Emergency.ico">
+        Title="Бровафарм 2.4.0" Height="450" Width="800" Icon="/Iconshock-Real-Vista-Medical-Emergency.ico">
 
     <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
-            
+
         </Grid.ColumnDefinitions>
-        
+
         <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
             <ToolBar Grid.Row="0">
                 <Button x:Name="buttonPaste" Content="paste" HorizontalAlignment="Left" VerticalAlignment="Center" Click="ButtonPaste_OnClick"/>
-
+                <Button x:Name="buttonXchangeFrontBack" Content="exchange front/back" VerticalAlignment="Center" Click="buttonXchangeFrontBack_Click"/>
             </ToolBar>
 
             <TreeView ToolTipService.InitialShowDelay="1" Grid.Row="1" x:Name="TreeViewPreparats" SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
@@ -60,18 +64,68 @@
             </TreeView>
 
             <notifications:NotificationArea Grid.Row="1" x:Name="WindowArea" Position="BottomRight" MaxItems="3"/>
+            <ListBox x:Name="filesList" Grid.Column="1" Grid.Row="1" AllowDrop="True" DragOver="filesList_DragOver" Drop="filesList_Drop" SelectionChanged="filesList_SelectionChanged" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="btnFront" Padding="3" Margin="3" Click="btnFront_Click">front</Button>
+                            <Button x:Name="btnBack" Padding="3" Margin="3" Click="btnBack_Click">back</Button>
+                            <TextBlock Text="{Binding Path=Name}" Margin="3 3 3 3"></TextBlock>
+
+                        </StackPanel>
+                        
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
 
         <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
                       HorizontalAlignment="Center" VerticalAlignment="Stretch" />
-        <Grid Grid.Column="2">
+
+        <Grid Grid.Column="2" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <uc:PdfViewer x:Name="PdfViewerFront" Grid.Column="0"/>
-            <uc:PdfViewer x:Name="PdfViewerBack" Grid.Column="1"/>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="0" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="20"></RowDefinition>
+                </Grid.RowDefinitions>
+            <ScrollViewer  HorizontalScrollBarVisibility="Auto">
+                <Image x:Name="ImgFront" Stretch="None" HorizontalAlignment="Center"  AllowDrop="True" Drop="ImgFront_Drop" DragOver="ImgFront_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
+                    <Image.LayoutTransform>
+                        <ScaleTransform ScaleX="{Binding ElementName=sliderFront,Path=Value}" ScaleY="{Binding ElementName=sliderFront,Path=Value}"></ScaleTransform>
+                    </Image.LayoutTransform>
+                </Image>
+            </ScrollViewer>
+                <Slider x:Name="sliderFront" Grid.Row="1" VerticalAlignment="Top" d:LayoutOverrides="Height" Value="0.8" Minimum="0.5" Maximum="2" TickFrequency="0.1"/>
+
+            </Grid>
+
+            <Grid Grid.Column="1" Grid.Row="1" >
+                 <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="20"></RowDefinition>
+                </Grid.RowDefinitions>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                <Image x:Name="ImgBack" AllowDrop="True" Stretch="none" Drop="ImgBack_Drop" DragOver="ImgBack_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
+                    <Image.LayoutTransform>
+                        <ScaleTransform ScaleX="{Binding ElementName=sliderBack,Path=Value}" ScaleY="{Binding ElementName=sliderBack,Path=Value}"></ScaleTransform>
+                    </Image.LayoutTransform>
+                </Image>
+            </ScrollViewer>
+                <Slider x:Name="sliderBack" Grid.Row="1"  VerticalAlignment="Top" d:LayoutOverrides="Height" Value="0.8" Minimum="0.5" Maximum="2" TickFrequency="0.1"/>
+            </Grid>
+            
+            <uc:PdfViewer x:Name="PdfViewerFront" Grid.Column="0" Grid.Row="0" />
+            <uc:PdfViewer x:Name="PdfViewerBack" Grid.Column="1" Grid.Row ="0"/>
+
         </Grid>
-     
+
     </Grid>
 </Window>

@@ -31,15 +31,12 @@ namespace ProvapharmNext
         private ObservableCollection<Preparat> _preparats;
         private NotificationManager _notificationManager = new NotificationManager();
         private PressSheetController _controller = new PressSheetController();
-        
+        private ImageSource defaultImage = new BitmapImage(new Uri("pack://application:,,,/Iconshock-Real-Vista-Medical-Emergency.ico"));
+        private ObservableCollection<ImageFilePreview> _previewFiles;
 
         public MainWindow()
         {
             InitializeComponent();
-
-
-            
-
         }
 
         private void ButtonPaste_OnClick(object sender, RoutedEventArgs e)
@@ -47,8 +44,6 @@ namespace ProvapharmNext
             _preparats = PasteService.GetPreparatsFromClipboard();
             SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
             TreeViewPreparats.ItemsSource = _preparats;
-            
-            
         }
 
 
@@ -56,8 +51,11 @@ namespace ProvapharmNext
         {
             if (e.NewValue is PreparatFile file)
             {
-                PdfViewerFront.GetPreviewPage(file.File.FullName,1);
-                PdfViewerBack.GetPreviewPage(file.File.FullName,2);
+                PdfViewerFront.GetPreviewPage(file.File.FullName, 1);
+                PdfViewerBack.GetPreviewPage(file.File.FullName, 2);
+
+                ImgBack.Source = file.Parent.BackPreview ?? defaultImage;
+                ImgFront.Source = file.Parent.FrontPreview ?? defaultImage;
             }
         }
 
@@ -67,7 +65,7 @@ namespace ProvapharmNext
             {
                 if (tree.SelectedItem is PreparatFile file)
                 {
-                    var filePath = new StringCollection {file.File.FullName};
+                    var filePath = new StringCollection { file.File.FullName };
                     try
                     {
                         Clipboard.SetFileDropList(filePath);
@@ -82,13 +80,177 @@ namespace ProvapharmNext
 
         private void ShowToolTip()
         {
-            
+
             _notificationManager.Show(new NotificationContent
             {
                 Title = "Бровафарм",
                 Message = "Скопійовано у буфер обміну",
                 Type = NotificationType.Information
-            }, "WindowArea",TimeSpan.FromSeconds(2));
+            }, "WindowArea", TimeSpan.FromSeconds(2));
+        }
+
+        private void ImgFront_Drop(object sender, DragEventArgs e)
+        {
+            var images = GetImagesFromDrop(e);
+            ImgFront.Source = images[0];
+            ImgBack.Source = images.Length > 1 ? images[1] : ImgBack.Source;
+
+            SetPreparatPreview();
+            
+            
+        }
+
+        private void SetPreparatPreview()
+        {
+            Preparat preparat = GetSelectedPreparat();
+            if (preparat != null)
+            {
+                SetPreparatImages(preparat);
+
+            }
+        }
+
+        private void SetPreparatImages(Preparat preparat)
+        {
+            preparat.FrontPreview = ImgFront.Source;
+            preparat.BackPreview = ImgBack.Source;
+        }
+
+        private Preparat GetSelectedPreparat()
+        {
+
+            if (TreeViewPreparats.SelectedItem is PreparatFile file) return file.Parent;
+            if (TreeViewPreparats.SelectedItem is Preparat preparat) return preparat;
+
+            return null;
+
+
+        }
+
+        private void ImgBack_Drop(object sender, DragEventArgs e)
+        {
+            var images = GetImagesFromDrop(e);
+            ImgBack.Source = images[0];
+            ImgFront.Source = images.Length > 1 ? images[1] : ImgFront.Source;
+
+            SetPreparatPreview();
+        }
+
+        private void ImgFront_DragOver(object sender, DragEventArgs e)
+        {
+
+            e.Handled = true;
+        }
+
+        private void ImgBack_DragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private BitmapImage GetImageFromDrop(DragEventArgs e)
+        {
+            BitmapImage bi = new BitmapImage();
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                var file = files[0];
+                bi.BeginInit();
+                bi.UriSource = new Uri(file, UriKind.Absolute);
+                bi.EndInit();
+            }
+            return bi;
+        }
+
+        private BitmapImage[] GetImagesFromDrop(DragEventArgs e)
+        {
+            var list = new List<BitmapImage>();
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                foreach (var file in files)
+                {
+                    BitmapImage bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.UriSource = new Uri(file, UriKind.Absolute);
+                    bi.EndInit();
+                    list.Add(bi);
+                }
+            }
+
+            return list.ToArray();
+
+        }
+
+        private BitmapImage GetImageFromFile(string file)
+        {
+            BitmapImage bi = new BitmapImage();
+            bi.BeginInit();
+            bi.UriSource = new Uri(file, UriKind.Absolute);
+            bi.EndInit();
+            return bi;
+        }
+
+        private void buttonXchangeFrontBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (TreeViewPreparats.SelectedItem is PreparatFile file)
+            {
+                ImgBack.Source = file.Parent.FrontPreview;
+                ImgFront.Source = file.Parent.BackPreview;
+
+                file.Parent.FrontPreview = ImgFront.Source;
+                file.Parent.BackPreview = ImgBack.Source;
+
+            }
+        }
+
+        private void filesList_DragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void filesList_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                _previewFiles = CreatePreviewFileList(files);
+                filesList.ItemsSource = _previewFiles;
+            }
+        }
+
+        private ObservableCollection<ImageFilePreview> CreatePreviewFileList(string[] files)
+        {
+            var col = new ObservableCollection<ImageFilePreview>();
+            foreach (var file in files)
+            {
+                col.Add(new ImageFilePreview(file));
+            }
+            return col;
+        }
+
+        private void filesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ImageFilePreview file = (ImageFilePreview)filesList.SelectedItem;
+            if (file != null)
+            {
+               // MessageBox.Show(file.Path);
+            }
+        }
+
+        private void btnFront_Click(object sender, RoutedEventArgs e)
+        {
+            ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
+            ImgFront.Source = GetImageFromFile(file.Path);
+            SetPreparatPreview();
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
+            ImgBack.Source = GetImageFromFile(file.Path);
+            SetPreparatPreview();
         }
     }
 }
