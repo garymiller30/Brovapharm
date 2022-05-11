@@ -19,7 +19,7 @@ namespace models.Service
                 {
                     foreach (string file in files)
                     {
-                        preparat.FileList.Add(new PreparatFile(file));
+                        preparat.FileList.Add(new PreparatFile(file){ Parent = preparat});
                     }
                 }
             }

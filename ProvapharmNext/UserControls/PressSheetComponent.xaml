@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="ProvapharmNext.UserControls.PressSheetComponent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ProvapharmNext.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="360" d:DesignWidth="450">
+    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="PressSheet №:"></TextBlock>
+            <TextBlock Text="{Binding Path=Idx}"></TextBlock>
+            <TextBlock Text="PressSheet type:" Margin="10,0,0,0"></TextBlock>
+            <TextBlock Text="{Binding Path=Type}"></TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>
