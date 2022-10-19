@@ -3,13 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ProvapharmNext"
         xmlns:self="clr-namespace:models.Models;assembly=models"
+        xmlns:viewModels="clr-namespace:ProvapharmNext.ViewModels"
         xmlns:uc="clr-namespace:ProvapharmNext.Controls"
         xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
         mc:Ignorable="d"
-        Title="Бровафарм 2.4.0" Height="450" Width="800" Icon="/Iconshock-Real-Vista-Medical-Emergency.ico">
-
+        Title="Бровафарм 2.4.1" Height="450" Width="800" Icon="/Iconshock-Real-Vista-Medical-Emergency.ico">
+    <Window.Resources>
+        <viewModels:PasteViewModel x:Key="pasteCommand"/>
+        <viewModels:ExportViewModel x:Key="exportCommand"/>
+    </Window.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -24,15 +27,26 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <ToolBar Grid.Row="0">
-                <Button x:Name="buttonPaste" Content="paste" HorizontalAlignment="Left" VerticalAlignment="Center" Click="ButtonPaste_OnClick"/>
-                <Button x:Name="buttonXchangeFrontBack" Content="exchange front/back" VerticalAlignment="Center" Click="buttonXchangeFrontBack_Click"/>
+            <ToolBar Grid.Row="0" Grid.ColumnSpan="2">
+
+                <Button x:Name="buttonPaste" 
+                        Content="paste" Command="{Binding PasteCommand, Source={StaticResource pasteCommand}}" Style="{Binding Mode=OneWay, Source={StaticResource MenuButtonStyle}}"
+                        />
+                <Separator/>
+                <Button x:Name="buttonXchangeFrontBack" 
+                        Content="exchange front/back" 
+                        Click="buttonXchangeFrontBack_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Separator/>
+                <Button x:Name="buttonExport" Content="Export file list" Style="{DynamicResource MenuButtonStyle}" Command="{Binding ExportCommand, Source={StaticResource exportCommand}}"  />
             </ToolBar>
 
-            <TreeView ToolTipService.InitialShowDelay="1" Grid.Row="1" x:Name="TreeViewPreparats" SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
+            <TreeView ToolTipService.InitialShowDelay="1" 
+                      Grid.Row="1" x:Name="TreeViewPreparats" 
+                      SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" 
+                      MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="True"></Setter>
@@ -43,13 +57,14 @@
                     <HierarchicalDataTemplate DataType="{x:Type self:Preparat}" ItemsSource="{Binding FileList}">
 
                         <StackPanel Orientation="Horizontal" >
-                            <TextBlock Text="{Binding Id}" Margin="0,0,5,0"></TextBlock>
+                            <TextBlock Text="{Binding Id}" Margin="0,0,5,0" ></TextBlock>
                             <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontWeight="Medium"></TextBlock>
                             <TextBlock Text="{Binding Name}"  Margin="0,0,5,0"></TextBlock>
                         </StackPanel>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type self:PreparatFile}">
                         <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="--> " Visibility="{Binding Path=IsSelectedVisibility}" FontWeight="Bold"></TextBlock>
                             <TextBlock Text="["></TextBlock>
                             <TextBlock Text="{Binding Path=CntPages}"></TextBlock>
                             <TextBlock Text="] "></TextBlock>
@@ -67,13 +82,14 @@
             <ListBox x:Name="filesList" Grid.Column="1" Grid.Row="1" AllowDrop="True" DragOver="filesList_DragOver" Drop="filesList_Drop" SelectionChanged="filesList_SelectionChanged" >
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
+                        <DockPanel  Background="{Binding Path=Color}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+ >
                             <Button x:Name="btnFront" Padding="3" Margin="3" Click="btnFront_Click">front</Button>
                             <Button x:Name="btnBack" Padding="3" Margin="3" Click="btnBack_Click">back</Button>
                             <TextBlock Text="{Binding Path=Name}" Margin="3 3 3 3"></TextBlock>
 
-                        </StackPanel>
-                        
+                        </DockPanel>
+
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -96,32 +112,32 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition Height="20"></RowDefinition>
                 </Grid.RowDefinitions>
-            <ScrollViewer  HorizontalScrollBarVisibility="Auto">
-                <Image x:Name="ImgFront" Stretch="None" HorizontalAlignment="Center"  AllowDrop="True" Drop="ImgFront_Drop" DragOver="ImgFront_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
-                    <Image.LayoutTransform>
-                        <ScaleTransform ScaleX="{Binding ElementName=sliderFront,Path=Value}" ScaleY="{Binding ElementName=sliderFront,Path=Value}"></ScaleTransform>
-                    </Image.LayoutTransform>
-                </Image>
-            </ScrollViewer>
+                <ScrollViewer  HorizontalScrollBarVisibility="Auto">
+                    <Image x:Name="ImgFront" Stretch="None" HorizontalAlignment="Center"  AllowDrop="True" Drop="ImgFront_Drop" DragOver="ImgFront_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
+                        <Image.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding ElementName=sliderFront,Path=Value}" ScaleY="{Binding ElementName=sliderFront,Path=Value}"></ScaleTransform>
+                        </Image.LayoutTransform>
+                    </Image>
+                </ScrollViewer>
                 <Slider x:Name="sliderFront" Grid.Row="1" VerticalAlignment="Top" d:LayoutOverrides="Height" Value="0.8" Minimum="0.5" Maximum="2" TickFrequency="0.1"/>
 
             </Grid>
 
             <Grid Grid.Column="1" Grid.Row="1" >
-                 <Grid.RowDefinitions>
+                <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition Height="20"></RowDefinition>
                 </Grid.RowDefinitions>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                <Image x:Name="ImgBack" AllowDrop="True" Stretch="none" Drop="ImgBack_Drop" DragOver="ImgBack_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
-                    <Image.LayoutTransform>
-                        <ScaleTransform ScaleX="{Binding ElementName=sliderBack,Path=Value}" ScaleY="{Binding ElementName=sliderBack,Path=Value}"></ScaleTransform>
-                    </Image.LayoutTransform>
-                </Image>
-            </ScrollViewer>
+                    <Image x:Name="ImgBack" AllowDrop="True" Stretch="none" Drop="ImgBack_Drop" DragOver="ImgBack_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
+                        <Image.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding ElementName=sliderBack,Path=Value}" ScaleY="{Binding ElementName=sliderBack,Path=Value}"></ScaleTransform>
+                        </Image.LayoutTransform>
+                    </Image>
+                </ScrollViewer>
                 <Slider x:Name="sliderBack" Grid.Row="1"  VerticalAlignment="Top" d:LayoutOverrides="Height" Value="0.8" Minimum="0.5" Maximum="2" TickFrequency="0.1"/>
             </Grid>
-            
+
             <uc:PdfViewer x:Name="PdfViewerFront" Grid.Column="0" Grid.Row="0" />
             <uc:PdfViewer x:Name="PdfViewerBack" Grid.Column="1" Grid.Row ="0"/>
 

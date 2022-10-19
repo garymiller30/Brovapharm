@@ -21,6 +21,11 @@ using models.Models;
 using models.Service;
 using Notifications.Wpf;
 
+using models.Models.json;
+using System.IO;
+using Newtonsoft.Json;
+using ProvapharmNext.ViewModels;
+
 namespace ProvapharmNext
 {
     /// <summary>
@@ -28,7 +33,7 @@ namespace ProvapharmNext
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ObservableCollection<Preparat> _preparats;
+        //private ObservableCollection<Preparat> _preparats;
         private NotificationManager _notificationManager = new NotificationManager();
         private PressSheetController _controller = new PressSheetController();
         private ImageSource defaultImage = new BitmapImage(new Uri("pack://application:,,,/Iconshock-Real-Vista-Medical-Emergency.ico"));
@@ -37,15 +42,46 @@ namespace ProvapharmNext
         public MainWindow()
         {
             InitializeComponent();
+            TreeViewPreparats.ItemsSource = Preparats.PreparatList;
         }
 
-        private void ButtonPaste_OnClick(object sender, RoutedEventArgs e)
-        {
-            _preparats = PasteService.GetPreparatsFromClipboard();
-            SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
-            TreeViewPreparats.ItemsSource = _preparats;
-        }
+        //private void ButtonPaste_OnClick(object sender, RoutedEventArgs e)
+        //{
+        //    _preparats = PasteService.GetPreparatsFromClipboard();
+        //    SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
+        //    TreeViewPreparats.ItemsSource = _preparats;
+        //}
 
+        //private void ButtonExport_OnClick(object sender, RoutedEventArgs e)
+        //{
+
+        //   var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+        //    if ((bool)dialog.ShowDialog()){
+        //        ExportFileList(dialog.SelectedPath);
+        //    }
+        //}
+
+        //private void ExportFileList(string path)
+        //{
+        //    List<FileItem> fileItems = new List<FileItem>();
+        //    foreach (var preparat in _preparats)
+        //    {
+        //        var selectedFile = preparat.FileList.FirstOrDefault(x=>x.IsSelected);
+
+        //        var fileItem = new FileItem();
+        //        fileItem.path = selectedFile.File.FullName;
+        //        fileItem.number = preparat.Id;
+        //        fileItem.cntPages = selectedFile.CntPages;
+        //        fileItem.preparatName = preparat.Name;
+        //        fileItem.preparatNumber = preparat.Number;
+
+        //        fileItems.Add(fileItem);
+        //    }
+
+        //    string jsonString = JsonConvert.SerializeObject(fileItems);
+        //    File.WriteAllText(System.IO.Path.Combine(path,"files.json"), jsonString);
+
+        //}
 
         private void TreeViewPreparats_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
@@ -68,6 +104,8 @@ namespace ProvapharmNext
                     var filePath = new StringCollection { file.File.FullName };
                     try
                     {
+                        file.Parent.FileList.Any(x=>x.IsSelected = false);
+                        file.IsSelected = true;
                         Clipboard.SetFileDropList(filePath);
                         ShowToolTip();
                     }
@@ -242,6 +280,7 @@ namespace ProvapharmNext
         private void btnFront_Click(object sender, RoutedEventArgs e)
         {
             ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
+            file.Color =  new SolidColorBrush(Colors.LightBlue);
             ImgFront.Source = GetImageFromFile(file.Path);
             SetPreparatPreview();
         }
@@ -249,6 +288,7 @@ namespace ProvapharmNext
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {
             ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
+            file.Color = new SolidColorBrush(Colors.LightBlue);
             ImgBack.Source = GetImageFromFile(file.Path);
             SetPreparatPreview();
         }

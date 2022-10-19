@@ -4,6 +4,12 @@
              xmlns:local="clr-namespace:ProvapharmNext"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/LightTheme.xaml" x:Name="colors"/>
+                <ResourceDictionary Source="/Styles/ButtonStyle.xaml" x:Name="buttons"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
     </Application.Resources>
 </Application>

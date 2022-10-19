@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Models\GlobalSettings.cs" />
     <Compile Include="Models\ImageFilePreview.cs" />
+    <Compile Include="Models\json\FileItem.cs" />
     <Compile Include="Models\Page.cs" />
     <Compile Include="Models\Preparat.cs" />
     <Compile Include="Models\PreparatFile.cs" />
