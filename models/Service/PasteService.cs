@@ -11,9 +11,8 @@ namespace models.Service
     {
         public static ObservableCollection<Preparat> GetPreparatsFromClipboard()
         {
-            var rowStrings = Clipboard.GetText().Split(new[]{"\r\n"},StringSplitOptions.RemoveEmptyEntries);
-
             ObservableCollection<Preparat> preparats = new ObservableCollection<Preparat>();
+            var rowStrings = Clipboard.GetText().Split(new[]{"\r\n"},StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var rowString in rowStrings)
             {
@@ -27,9 +26,7 @@ namespace models.Service
                 };
 
                 preparats.Add(preparat);
-                
             }
-
             return preparats;
         }
     }

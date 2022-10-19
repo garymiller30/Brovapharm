@@ -1,5 +1,6 @@
 ﻿using models.Models;
 using models.Service;
+using ProvapharmNext.Commons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +27,19 @@ namespace ProvapharmNext.ViewModels
 
         private void Execute(object parameter)
         {
-            var _preparats = PasteService.GetPreparatsFromClipboard();
-            SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
-            _preparats.ToList().ForEach(Preparats.PreparatList.Add);
-            
+            try
+            {
+                var _preparats = PasteService.GetPreparatsFromClipboard();
+                SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
+                _preparats.ToList().ForEach(Preparats.PreparatList.Add);
 
-           // TreeViewPreparats.ItemsSource = _preparats;
+            }
+            catch (Exception e)
+            {
+
+                Notify.Error(e.Message);
+            }
+
         }
     }
 }

@@ -25,6 +25,9 @@ using models.Models.json;
 using System.IO;
 using Newtonsoft.Json;
 using ProvapharmNext.ViewModels;
+using ProvapharmNext.Controls;
+using Path = System.IO.Path;
+using ProvapharmNext.Commons;
 
 namespace ProvapharmNext
 {
@@ -34,7 +37,7 @@ namespace ProvapharmNext
     public partial class MainWindow : Window
     {
         //private ObservableCollection<Preparat> _preparats;
-        private NotificationManager _notificationManager = new NotificationManager();
+        
         private PressSheetController _controller = new PressSheetController();
         private ImageSource defaultImage = new BitmapImage(new Uri("pack://application:,,,/Iconshock-Real-Vista-Medical-Emergency.ico"));
         private ObservableCollection<ImageFilePreview> _previewFiles;
@@ -43,6 +46,31 @@ namespace ProvapharmNext
         {
             InitializeComponent();
             TreeViewPreparats.ItemsSource = Preparats.PreparatList;
+
+            LoadFromCommandLine();
+        }
+
+        private void LoadFromCommandLine()
+        {
+            var args = Environment.GetCommandLineArgs();
+
+            if (args.Count() == 2)
+            {
+                var ext = Path.GetExtension(args[1]);
+                // try to loading word file
+                if (ext.Equals(".docx", StringComparison.InvariantCultureIgnoreCase)){
+                    var preparats = LoadOrderListFromWord.Load(args[1]);
+
+                    foreach (var preparat in preparats)
+                    {
+                        Preparats.PreparatList.Add(preparat);
+                    }
+                    SearchService.GetFilesForPreparats(new GlobalSettings(), Preparats.PreparatList);
+
+                    Settings.ExportPath = Path.GetDirectoryName(args[1]);
+
+                }
+            }
         }
 
         //private void ButtonPaste_OnClick(object sender, RoutedEventArgs e)
@@ -118,13 +146,7 @@ namespace ProvapharmNext
 
         private void ShowToolTip()
         {
-
-            _notificationManager.Show(new NotificationContent
-            {
-                Title = "Бровафарм",
-                Message = "Скопійовано у буфер обміну",
-                Type = NotificationType.Information
-            }, "WindowArea", TimeSpan.FromSeconds(2));
+            Notify.Information("Скопійовано у буфер обміну");
         }
 
         private void ImgFront_Drop(object sender, DragEventArgs e)
@@ -232,6 +254,9 @@ namespace ProvapharmNext
 
         private void buttonXchangeFrontBack_Click(object sender, RoutedEventArgs e)
         {
+            //var preparats = LoadOrderListFromWord.Load(@"F:\Jobs\USK\2022\#2022-10-17_USK_BROVAFARM_INSTRUKCII_111\Замовлення 111від 17.10.2022.docx");
+            //SearchService.GetFilesForPreparats(new GlobalSettings(), new ObservableCollection<Preparat>( preparats));
+            //  TreeViewPreparats.ItemsSource = preparats;
             if (TreeViewPreparats.SelectedItem is PreparatFile file)
             {
                 ImgBack.Source = file.Parent.FrontPreview;
