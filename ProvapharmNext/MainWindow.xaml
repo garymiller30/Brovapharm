@@ -42,57 +42,66 @@
                 <Separator/>
                 <Button x:Name="buttonExport" Content="Export file list" Style="{DynamicResource MenuButtonStyle}" Command="{Binding ExportCommand, Source={StaticResource exportCommand}}"  />
             </ToolBar>
-
-            <TreeView ToolTipService.InitialShowDelay="1" 
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="4"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TreeView ToolTipService.InitialShowDelay="1" 
                       Grid.Row="1" x:Name="TreeViewPreparats" 
                       SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" 
                       MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="True"></Setter>
-                    </Style>
-                </TreeView.ItemContainerStyle>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="True"></Setter>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
 
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type self:Preparat}" ItemsSource="{Binding FileList}">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type self:Preparat}" ItemsSource="{Binding FileList}">
 
-                        <StackPanel Orientation="Horizontal" >
-                            <TextBlock Text="{Binding Id}" Margin="0,0,5,0" ></TextBlock>
-                            <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontWeight="Medium"></TextBlock>
-                            <TextBlock Text="{Binding Name}"  Margin="0,0,5,0"></TextBlock>
-                        </StackPanel>
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type self:PreparatFile}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="--> " Visibility="{Binding Path=IsSelectedVisibility}" FontWeight="Bold"></TextBlock>
-                            <TextBlock Text="["></TextBlock>
-                            <TextBlock Text="{Binding Path=CntPages}"></TextBlock>
-                            <TextBlock Text="] "></TextBlock>
-                            <TextBlock Text="["></TextBlock>
-                            <TextBlock Text="{Binding Path=File.CreationTime.Date,StringFormat={}dd.MM.yyyy}"></TextBlock>
-                            <TextBlock Text="] "></TextBlock>
-                            <TextBlock Text="{Binding Path=File.Name}"></TextBlock>
+                            <StackPanel Orientation="Horizontal" >
+                                <TextBlock Text="{Binding Id}" Margin="0,0,5,0" ></TextBlock>
+                                <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontWeight="Medium"></TextBlock>
+                                <TextBlock Text="{Binding Name}"  Margin="0,0,5,0"></TextBlock>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type self:PreparatFile}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="--> " Visibility="{Binding Path=IsSelectedVisibility}" FontWeight="Bold"></TextBlock>
+                                <TextBlock Text="["></TextBlock>
+                                <TextBlock Text="{Binding Path=CntPages}"></TextBlock>
+                                <TextBlock Text="] "></TextBlock>
+                                <TextBlock Text="["></TextBlock>
+                                <TextBlock Text="{Binding Path=File.CreationTime.Date,StringFormat={}dd.MM.yyyy}"></TextBlock>
+                                <TextBlock Text="] "></TextBlock>
+                                <TextBlock Text="{Binding Path=File.Name}"></TextBlock>
 
-                        </StackPanel>
-                    </DataTemplate>
-                </TreeView.Resources>
-            </TreeView>
-
-            <notifications:NotificationArea Grid.Row="1" x:Name="WindowArea" Position="BottomRight" MaxItems="3"/>
-            <ListBox x:Name="filesList" Grid.Column="1" Grid.Row="1" AllowDrop="True" DragOver="filesList_DragOver" Drop="filesList_Drop" SelectionChanged="filesList_SelectionChanged" >
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <DockPanel  Background="{Binding Path=Color}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+                <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+                <notifications:NotificationArea Grid.Row="1" x:Name="WindowArea" Position="BottomRight" MaxItems="3"/>
+                <ListBox x:Name="filesList" Grid.Column="2" Grid.Row="1" AllowDrop="True" DragOver="filesList_DragOver" Drop="filesList_Drop" SelectionChanged="filesList_SelectionChanged" >
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel  Background="{Binding Path=Color}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
  >
-                            <Button x:Name="btnFront" Padding="3" Margin="3" Click="btnFront_Click">front</Button>
-                            <Button x:Name="btnBack" Padding="3" Margin="3" Click="btnBack_Click">back</Button>
-                            <TextBlock Text="{Binding Path=Name}" Margin="3 3 3 3"></TextBlock>
+                                <Button x:Name="btnFront" Padding="3" Margin="3" Click="btnFront_Click">front</Button>
+                                <Button x:Name="btnBack" Padding="3" Margin="3" Click="btnBack_Click">back</Button>
+                                <TextBlock Text="{Binding Path=Name}" Margin="3 3 3 3"></TextBlock>
 
-                        </DockPanel>
+                            </DockPanel>
 
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+            </Grid>
+            
         </Grid>
 
         <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
