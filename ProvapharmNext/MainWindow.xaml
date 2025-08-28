@@ -12,6 +12,8 @@
     <Window.Resources>
         <viewModels:PasteViewModel x:Key="pasteCommand"/>
         <viewModels:ExportViewModel x:Key="exportCommand"/>
+        <viewModels:RefreshPreparatViewModel x:Key="refreshPreparatCommand"/>
+        <viewModels:MoveToArchiveViewModel x:Key="moveToArchiveCommand"/>
     </Window.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
@@ -31,7 +33,7 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
             <ToolBar Grid.Row="0" Grid.ColumnSpan="2">
-
+                
                 <Button x:Name="buttonPaste" 
                         Content="paste" Command="{Binding PasteCommand, Source={StaticResource pasteCommand}}" Style="{Binding Mode=OneWay, Source={StaticResource MenuButtonStyle}}"
                         />
@@ -48,10 +50,15 @@
                     <ColumnDefinition Width="4"></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TreeView ToolTipService.InitialShowDelay="1" 
-                      Grid.Row="1" x:Name="TreeViewPreparats" 
-                      SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" 
-                      MouseDoubleClick="TreeViewPreparats_MouseDoubleClick">
+                <TreeView  
+                    ToolTipService.InitialShowDelay="1" 
+                    Grid.Row="1" 
+                    x:Name="TreeViewPreparats" 
+                    SelectedItemChanged="TreeViewPreparats_SelectedItemChanged" 
+                    MouseDoubleClick="TreeViewPreparats_MouseDoubleClick"
+                    KeyDown="filesList_KeyDown"
+                    >
+                    
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="IsExpanded" Value="True"></Setter>
@@ -62,12 +69,13 @@
                         <HierarchicalDataTemplate DataType="{x:Type self:Preparat}" ItemsSource="{Binding FileList}">
 
                             <StackPanel Orientation="Horizontal" >
-                                <TextBlock Text="{Binding Id}" Margin="0,0,5,0" ></TextBlock>
-                                <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontWeight="Medium"></TextBlock>
-                                <TextBlock Text="{Binding Name}"  Margin="0,0,5,0"></TextBlock>
+                                <TextBlock Text="{Binding Id}" Margin="0,0,5,0" VerticalAlignment="Center" ></TextBlock>
+                                <TextBlock Text="{Binding Number}" Margin="0,0,5,0" FontSize="16" Foreground="DarkOrchid" FontWeight="Medium" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="{Binding Name}"  Margin="0,0,5,0" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"></TextBlock>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type self:PreparatFile}">
+                           
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="--> " Visibility="{Binding Path=IsSelectedVisibility}" FontWeight="Bold"></TextBlock>
                                 <TextBlock Text="["></TextBlock>
@@ -77,9 +85,24 @@
                                 <TextBlock Text="{Binding Path=File.CreationTime.Date,StringFormat={}dd.MM.yyyy}"></TextBlock>
                                 <TextBlock Text="] "></TextBlock>
                                 <TextBlock Text="{Binding Path=File.Name}"></TextBlock>
-
                             </StackPanel>
+
                         </DataTemplate>
+
+                        <ContextMenu x:Key="EditMenu">
+                            <MenuItem 
+                                Name="refreshMenuItem"
+                                Header="Refresh" 
+                                Command="{Binding refreshPreparatCommand}" 
+                                CommandParameter="{Binding ElementName=TreeViewPreparats,Path=SelectedItem}"   />
+                        </ContextMenu>
+                        <ContextMenu x:Key="ToArchive">
+                            <MenuItem 
+                                Name="MoveToArchive"
+                                Header="Move To Archive" 
+                                Command="{Binding moveToArchiveCommand}" 
+                                CommandParameter="{Binding  ElementName=TreeViewPreparats,Path=SelectedItem  }"   />
+                        </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>
                 <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
@@ -88,20 +111,17 @@
                 <ListBox x:Name="filesList" Grid.Column="2" Grid.Row="1" AllowDrop="True" DragOver="filesList_DragOver" Drop="filesList_Drop" SelectionChanged="filesList_SelectionChanged" >
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <DockPanel  Background="{Binding Path=Color}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
- >
+                            <DockPanel Background="{Binding Path=Color}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <Button x:Name="btnFront" Padding="3" Margin="3" Click="btnFront_Click">front</Button>
                                 <Button x:Name="btnBack" Padding="3" Margin="3" Click="btnBack_Click">back</Button>
                                 <TextBlock Text="{Binding Path=Name}" Margin="3 3 3 3"></TextBlock>
-
                             </DockPanel>
-
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
 
             </Grid>
-            
+
         </Grid>
 
         <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
@@ -121,7 +141,7 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition Height="20"></RowDefinition>
                 </Grid.RowDefinitions>
-                <ScrollViewer  HorizontalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="ImageScrollFront"  HorizontalScrollBarVisibility="Auto">
                     <Image x:Name="ImgFront" Stretch="None" HorizontalAlignment="Center"  AllowDrop="True" Drop="ImgFront_Drop" DragOver="ImgFront_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
                         <Image.LayoutTransform>
                             <ScaleTransform ScaleX="{Binding ElementName=sliderFront,Path=Value}" ScaleY="{Binding ElementName=sliderFront,Path=Value}"></ScaleTransform>
@@ -137,7 +157,7 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition Height="20"></RowDefinition>
                 </Grid.RowDefinitions>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="ImageScrollBack" HorizontalScrollBarVisibility="Auto">
                     <Image x:Name="ImgBack" AllowDrop="True" Stretch="none" Drop="ImgBack_Drop" DragOver="ImgBack_DragOver" Source="/Iconshock-Real-Vista-Medical-Emergency.ico" >
                         <Image.LayoutTransform>
                             <ScaleTransform ScaleX="{Binding ElementName=sliderBack,Path=Value}" ScaleY="{Binding ElementName=sliderBack,Path=Value}"></ScaleTransform>

@@ -21,6 +21,10 @@ namespace models.Service
                     {
                         preparat.FileList.Add(new PreparatFile(file){ Parent = preparat});
                     }
+
+                    var sortedFiles = preparat.FileList.OrderByDescending(x=>x.File.CreationTime).FirstOrDefault();
+                    if (sortedFiles != null) sortedFiles.IsSelected = true;
+
                 }
             }
         }

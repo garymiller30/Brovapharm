@@ -2,6 +2,7 @@
 {
     public class GlobalSettings
     {
-        public string ProductsRepository { get; set; } = @"f:\jobs\usk\.static\brovapharm\інструкції";
+        public string LocalProductsRepository { get; set; } 
+        public string ProductsRepository { get; set; } = @"f:\jobs-root\print-ua\brovafarma\.static\інструкції";
     }
 }

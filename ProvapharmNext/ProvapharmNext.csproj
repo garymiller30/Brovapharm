@@ -87,8 +87,10 @@
       <DependentUpon>PressSheetComponent.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ExportViewModel.cs" />
+    <Compile Include="ViewModels\MoveToArchiveViewModel.cs" />
     <Compile Include="ViewModels\PasteViewModel.cs" />
     <Compile Include="ViewModels\Preparats.cs" />
+    <Compile Include="ViewModels\RefreshPreparatViewModel.cs" />
     <Page Include="Controls\PdfViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

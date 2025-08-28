@@ -1,8 +1,19 @@
-﻿using System;
+﻿using models.Models;
+using models.Models.json;
+using models.Service;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using Notifications.Wpf;
+using ProvapharmNext.Commons;
+using ProvapharmNext.Controls;
+using ProvapharmNext.ViewModels;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,18 +27,9 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using models.Models;
-using models.Service;
-using Notifications.Wpf;
-
-using models.Models.json;
-using System.IO;
-using Newtonsoft.Json;
-using ProvapharmNext.ViewModels;
-using ProvapharmNext.Controls;
 using Path = System.IO.Path;
-using ProvapharmNext.Commons;
 
 namespace ProvapharmNext
 {
@@ -37,16 +39,17 @@ namespace ProvapharmNext
     public partial class MainWindow : Window
     {
         //private ObservableCollection<Preparat> _preparats;
-        
+
         private PressSheetController _controller = new PressSheetController();
         private ImageSource defaultImage = new BitmapImage(new Uri("pack://application:,,,/Iconshock-Real-Vista-Medical-Emergency.ico"));
         private ObservableCollection<ImageFilePreview> _previewFiles;
+        private GlobalSettings _settings;
 
         public MainWindow()
         {
             InitializeComponent();
             TreeViewPreparats.ItemsSource = Preparats.PreparatList;
-
+            _settings = new GlobalSettings();
             LoadFromCommandLine();
         }
 
@@ -54,72 +57,122 @@ namespace ProvapharmNext
         {
             var args = Environment.GetCommandLineArgs();
 
+            // brovapharm.exe <word file>
             if (args.Count() == 2)
             {
-                var ext = Path.GetExtension(args[1]);
-                // try to loading word file
-                if (ext.Equals(".docx", StringComparison.InvariantCultureIgnoreCase)){
-                    var preparats = LoadOrderListFromWord.Load(args[1]);
-
-                    foreach (var preparat in preparats)
+                ProcessWordFile(args[1], _settings);
+            }
+            // brovapharm.exe <word file> <pdf files folder>
+            else if (args.Count() == 3)
+            {
+                _settings.ProductsRepository = args[2];
+                ProcessWordFile(args[1], _settings);
+            }
+            //else if (args.Count() == 4)
+            //{
+            //    _settings.LocalProductsRepository = args[2];
+            //    // brovapharm.exe <word file> <pdf files folder> <repository>
+            //    ProcessWordFile(args[1], _settings);
+            //}
+        }
+        private void filesList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                if (TreeViewPreparats.SelectedItem is PreparatFile file && file.IsSelected == false)
+                {
+                    var res = MessageBox.Show("Move file to archive?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (res == MessageBoxResult.Yes)
                     {
-                        Preparats.PreparatList.Add(preparat);
+                       if (MovePreparatToArchive(file))
+                        {
+                             // delete TreeViewPreparats.SelectedItem from TreeViewPreparats
+                             var parent = file.Parent;
+                            parent.FileList.Remove(file);
+                             //var items = TreeViewPreparats.ItemsSource as IList;
+                            //items?.Remove(file);
+                        }
+
                     }
-                    SearchService.GetFilesForPreparats(new GlobalSettings(), Preparats.PreparatList);
-
-                    Settings.ExportPath = Path.GetDirectoryName(args[1]);
-
                 }
+
+                // Ваш код для видалення вибраного елемента
+                //var selectedItem = filesList.SelectedItem;
+                //if (selectedItem != null)
+                //{
+                //    // Наприклад, якщо ItemsSource - ObservableCollection<PreparatFile>
+                //    var items = filesList.ItemsSource as IList;
+                //    items?.Remove(selectedItem);
+                //}
             }
         }
 
-        //private void ButtonPaste_OnClick(object sender, RoutedEventArgs e)
-        //{
-        //    _preparats = PasteService.GetPreparatsFromClipboard();
-        //    SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
-        //    TreeViewPreparats.ItemsSource = _preparats;
-        //}
+        private bool MovePreparatToArchive(PreparatFile file)
+        {
 
-        //private void ButtonExport_OnClick(object sender, RoutedEventArgs e)
-        //{
+            string targetDir = Path.Combine(_settings.ProductsRepository, "old");
+            string targetFile = Path.Combine(targetDir, file.File.Name);
+            if (File.Exists(targetFile))
+            {
+                var newFileName = $"{Path.GetFileNameWithoutExtension(file.File.Name)}_{DateTime.Now:yyyyMMddHHmmss}{Path.GetExtension(file.File.Name)}";
+                targetFile = Path.Combine(targetDir, newFileName);
 
-        //   var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
-        //    if ((bool)dialog.ShowDialog()){
-        //        ExportFileList(dialog.SelectedPath);
-        //    }
-        //}
+            }
+            try
+            {
+                File.Move(file.File.FullName, targetFile);
+            }
+            catch (Exception)
+            {
 
-        //private void ExportFileList(string path)
-        //{
-        //    List<FileItem> fileItems = new List<FileItem>();
-        //    foreach (var preparat in _preparats)
-        //    {
-        //        var selectedFile = preparat.FileList.FirstOrDefault(x=>x.IsSelected);
+                return false;
+            }
 
-        //        var fileItem = new FileItem();
-        //        fileItem.path = selectedFile.File.FullName;
-        //        fileItem.number = preparat.Id;
-        //        fileItem.cntPages = selectedFile.CntPages;
-        //        fileItem.preparatName = preparat.Name;
-        //        fileItem.preparatNumber = preparat.Number;
+            return true;
+        }
 
-        //        fileItems.Add(fileItem);
-        //    }
+        IEnumerable<Preparat> ProcessWordFile(string wordFile, GlobalSettings settings)
+        {
+            IEnumerable<Preparat> preparats = null;
 
-        //    string jsonString = JsonConvert.SerializeObject(fileItems);
-        //    File.WriteAllText(System.IO.Path.Combine(path,"files.json"), jsonString);
+            var ext = Path.GetExtension(wordFile);
+            if (ext.Equals(".docx", StringComparison.InvariantCultureIgnoreCase))
+            {
+                preparats = LoadOrderListFromWord.Load(wordFile);
 
-        //}
+                foreach (var preparat in preparats)
+                {
+                    Preparats.PreparatList.Add(preparat);
+                }
+                SearchService.GetFilesForPreparats(settings, Preparats.PreparatList);
+                Settings.ExportPath = Path.GetDirectoryName(wordFile);
+                var previewFiles = Directory.GetFiles(Settings.ExportPath, "*.jpg");
+                _previewFiles = CreatePreviewFileList(previewFiles);
+                filesList.ItemsSource = _previewFiles;
+            }
+
+
+            return preparats;
+        }
+
+
 
         private void TreeViewPreparats_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is PreparatFile file)
             {
+                TreeViewPreparats.ContextMenu = null;
+
+
                 PdfViewerFront.GetPreviewPage(file.File.FullName, 1);
                 PdfViewerBack.GetPreviewPage(file.File.FullName, 2);
 
                 ImgBack.Source = file.Parent.BackPreview ?? defaultImage;
                 ImgFront.Source = file.Parent.FrontPreview ?? defaultImage;
+            }
+            else
+            {
+                TreeViewPreparats.ContextMenu = TreeViewPreparats.Resources["EditMenu"] as ContextMenu;
             }
         }
 
@@ -132,7 +185,7 @@ namespace ProvapharmNext
                     var filePath = new StringCollection { file.File.FullName };
                     try
                     {
-                        file.Parent.FileList.Any(x=>x.IsSelected = false);
+                        file.Parent.FileList.Any(x => x.IsSelected = false);
                         file.IsSelected = true;
                         Clipboard.SetFileDropList(filePath);
                         ShowToolTip();
@@ -156,8 +209,8 @@ namespace ProvapharmNext
             ImgBack.Source = images.Length > 1 ? images[1] : ImgBack.Source;
 
             SetPreparatPreview();
-            
-            
+
+
         }
 
         private void SetPreparatPreview()
@@ -254,9 +307,6 @@ namespace ProvapharmNext
 
         private void buttonXchangeFrontBack_Click(object sender, RoutedEventArgs e)
         {
-            //var preparats = LoadOrderListFromWord.Load(@"F:\Jobs\USK\2022\#2022-10-17_USK_BROVAFARM_INSTRUKCII_111\Замовлення 111від 17.10.2022.docx");
-            //SearchService.GetFilesForPreparats(new GlobalSettings(), new ObservableCollection<Preparat>( preparats));
-            //  TreeViewPreparats.ItemsSource = preparats;
             if (TreeViewPreparats.SelectedItem is PreparatFile file)
             {
                 ImgBack.Source = file.Parent.FrontPreview;
@@ -293,28 +343,31 @@ namespace ProvapharmNext
             return col;
         }
 
-        private void filesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void filesList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             ImageFilePreview file = (ImageFilePreview)filesList.SelectedItem;
             if (file != null)
             {
-               // MessageBox.Show(file.Path);
+                // MessageBox.Show(file.Path);
             }
         }
 
         private void btnFront_Click(object sender, RoutedEventArgs e)
         {
-            ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
-            file.Color =  new SolidColorBrush(Colors.LightBlue);
+            ImageFilePreview file = (ImageFilePreview)((System.Windows.Controls.Button)sender).DataContext;
+            file.Color = new SolidColorBrush(Colors.LightBlue);
             ImgFront.Source = GetImageFromFile(file.Path);
+
             SetPreparatPreview();
+            ImageScrollFront.ScrollToHorizontalOffset(ImgFront.ActualWidth / 2);
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {
-            ImageFilePreview file = (ImageFilePreview)((Button)sender).DataContext;
+            ImageFilePreview file = (ImageFilePreview)((System.Windows.Controls.Button)sender).DataContext;
             file.Color = new SolidColorBrush(Colors.LightBlue);
             ImgBack.Source = GetImageFromFile(file.Path);
+            ImageScrollBack.ScrollToHorizontalOffset(ImgBack.ActualWidth / 2);
             SetPreparatPreview();
         }
     }

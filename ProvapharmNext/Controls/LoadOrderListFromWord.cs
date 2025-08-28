@@ -29,7 +29,12 @@ namespace ProvapharmNext.Controls
 
                     for (int i = rows.Count() - 1; i > 0; i--)
                     {
+                        
                         var cells = rows[i].Descendants<TableCell>().ToList();
+
+                        if (string.IsNullOrEmpty(cells[0].InnerText) ||
+                            string.IsNullOrEmpty(cells[1].InnerText) ||
+                            string.IsNullOrEmpty(cells[2].InnerText)) continue;
 
                         var preparat = new Preparat()
                         {
