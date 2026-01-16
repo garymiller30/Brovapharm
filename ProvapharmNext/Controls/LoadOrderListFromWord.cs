@@ -43,6 +43,14 @@ namespace ProvapharmNext.Controls
                             Number = cells[2].InnerText,
                         };
 
+                        // в тисячах, кома розділяє тисячі
+                        string quantityText = cells[8].InnerText;
+
+                        decimal quantityDecimal = decimal.Parse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
+
+                        preparat.Quantity = (int)(quantityDecimal * 1000);
+
+
                         list.Insert(0, preparat);
 
                         if (preparat.Id == 1) break;

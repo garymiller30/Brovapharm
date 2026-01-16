@@ -9,8 +9,8 @@ namespace models.Models
         public int Id { get; set; }
         public string Number { get; set; }
         public string Name { get; set; }
+        public int Quantity { get; set; }
 
-        
         public ImageSource FrontPreview {get;set;}
         public ImageSource BackPreview {get;set;}
 

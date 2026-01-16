@@ -86,6 +86,7 @@
     <Compile Include="UserControls\PressSheetComponent.xaml.cs">
       <DependentUpon>PressSheetComponent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\CopyToFolderViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\MoveToArchiveViewModel.cs" />
     <Compile Include="ViewModels\PasteViewModel.cs" />
