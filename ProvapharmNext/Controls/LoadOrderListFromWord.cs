@@ -44,7 +44,7 @@ namespace ProvapharmNext.Controls
                         };
 
                         // в тисячах, кома розділяє тисячі
-                        string quantityText = cells[8].InnerText;
+                        string quantityText = cells[8].InnerText.Trim();
 
                         decimal quantityDecimal = decimal.Parse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
 
