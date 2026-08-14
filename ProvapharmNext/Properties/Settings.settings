@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="FolderWithFiles" Type="System.String" Scope="User">
-      <Value Profile="(Default)">f:\jobs\usk\.static\brovapharm\інструкції</Value>
+      <Value Profile="(Default)">h:\Dev\Brovapharm\ProvapharmNext\bin\Debug\.static\Інструкції\</Value>
     </Setting>
   </Settings>
 </SettingsFile>
