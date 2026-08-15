@@ -1,4 +1,4 @@
-﻿using models.Models;
+using models.Models;
 using models.Models.json;
 using models.Service;
 using Newtonsoft.Json;
@@ -27,8 +27,6 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Path = System.IO.Path;
 
 namespace ProvapharmNext
