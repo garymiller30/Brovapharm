@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -38,20 +39,20 @@ namespace ProvapharmNext
             LoadFromCommandLine();
         }
 
-        private void LoadFromCommandLine()
+        private async void LoadFromCommandLine()
         {
             var args = Environment.GetCommandLineArgs();//.Skip(1).ToArray();
 
             // brovapharm.exe <word file>
             if (args.Count() == 2)
             {
-                ProcessWordFile(args[1], _settings);
+                await ProcessWordFileAsync(args[1], _settings);
             }
             // brovapharm.exe <word file> <pdf files folder>
             else if (args.Count() == 3)
             {
                 _settings.ProductsRepository = args[2];
-                ProcessWordFile(args[1], _settings);
+                await ProcessWordFileAsync(args[1], _settings);
             }
             //else if (args.Count() == 4)
             //{
@@ -118,20 +119,20 @@ namespace ProvapharmNext
             return true;
         }
 
-        IEnumerable<Preparat> ProcessWordFile(string wordFile, GlobalSettings settings)
+        private async Task<IEnumerable<Preparat>> ProcessWordFileAsync(string wordFile, GlobalSettings settings)
         {
             IEnumerable<Preparat> preparats = null;
 
             var ext = Path.GetExtension(wordFile);
             if (ext.Equals(".docx", StringComparison.InvariantCultureIgnoreCase))
             {
-                preparats = LoadOrderListFromWord.Load(wordFile);
+                preparats = await Task.Run(() => LoadOrderListFromWord.Load(wordFile).ToList());
 
                 foreach (var preparat in preparats)
                 {
                     Preparats.PreparatList.Add(preparat);
                 }
-                SearchService.GetFilesForPreparats(settings, Preparats.PreparatList);
+                await Task.Run(() => SearchService.GetFilesForPreparats(settings, Preparats.PreparatList));
                 Settings.ExportPath = Path.GetDirectoryName(wordFile);
                 var previewFiles = Directory.GetFiles(Settings.ExportPath, "*.jpg");
                 _previewFiles = CreatePreviewFileList(previewFiles);

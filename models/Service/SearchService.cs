@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using iTextSharp.text;
+using System.Windows;
 using models.Models;
 
 namespace models.Service
@@ -13,19 +13,21 @@ namespace models.Service
         {
             foreach (var preparat in preparats)
             {
-                
                 var files = Directory.GetFiles(settings.ProductsRepository, $"*{preparat.Number}*.pdf");
-                if (files.Any())
+                if (!files.Any())
+                    continue;
+
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     foreach (string file in files)
                     {
-                        preparat.FileList.Add(new PreparatFile(file){ Parent = preparat});
+                        preparat.FileList.Add(new PreparatFile(file) { Parent = preparat });
                     }
 
-                    var sortedFiles = preparat.FileList.OrderByDescending(x=>x.File.CreationTime).FirstOrDefault();
-                    if (sortedFiles != null) sortedFiles.IsSelected = true;
-
-                }
+                    var sortedFiles = preparat.FileList.OrderByDescending(x => x.File.CreationTime).FirstOrDefault();
+                    if (sortedFiles != null)
+                        sortedFiles.IsSelected = true;
+                });
             }
         }
     }
