@@ -1,32 +1,19 @@
 using models.Models;
-using models.Models.json;
 using models.Service;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-using Notifications.Wpf;
 using ProvapharmNext.Commons;
 using ProvapharmNext.Controls;
 using ProvapharmNext.ViewModels;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 
 namespace ProvapharmNext
@@ -53,7 +40,7 @@ namespace ProvapharmNext
 
         private void LoadFromCommandLine()
         {
-            var args = Environment.GetCommandLineArgs();
+            var args = Environment.GetCommandLineArgs();//.Skip(1).ToArray();
 
             // brovapharm.exe <word file>
             if (args.Count() == 2)

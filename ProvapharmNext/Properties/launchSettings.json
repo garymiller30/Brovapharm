@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ProvapharmNext": {
+      "commandName": "Project",
+      "commandLineArgs": "\"h:\\Dev\\Brovapharm\\ProvapharmNext\\bin\\Debug\\net10.0-windows10.0.19041.0\\Замовлення 88 від 13.08.2026.docx\" \"h:\\Dev\\Brovapharm\\ProvapharmNext\\bin\\Debug\\net10.0-windows10.0.19041.0\\.static\\Інструкції\"",
+      "workingDirectory": "H:\\Dev\\Brovapharm\\ProvapharmNext\\bin\\Debug\\net10.0-windows10.0.19041.0"
+    }
+  }
+}

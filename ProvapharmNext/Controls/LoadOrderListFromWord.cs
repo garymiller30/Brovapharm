@@ -5,67 +5,70 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
-namespace ProvapharmNext.Controls
+namespace ProvapharmNext.Controls;
+
+public class LoadOrderListFromWord
 {
-    public class LoadOrderListFromWord
+    public static IEnumerable<Preparat> Load(string wordFile)
     {
-        public static IEnumerable<Preparat> Load(string wordFile)
+        List<Preparat> list = new List<Preparat>();
+        try
         {
-            List<Preparat> list = new List<Preparat>();
-            try
+            using var doc = WordprocessingDocument.Open(wordFile, false);
+            
+            if (doc == null || doc.MainDocumentPart == null || doc.MainDocumentPart.Document == null || doc.MainDocumentPart.Document.Body == null)
             {
-                using (var doc = WordprocessingDocument.Open(wordFile, false))
+                MessageBox.Show("Не вдалося відкрити документ Word.");
+                return list;
+            }
+
+            DataTable dt = new DataTable();
+
+            Table table = doc.MainDocumentPart.Document.Body.Elements<Table>().First();
+
+            // To get all rows from table  
+            List<TableRow> rows = table.Elements<TableRow>().ToList();
+
+            for (int i = rows.Count() - 1; i > 0; i--)
+            {
+
+                var cells = rows[i].Descendants<TableCell>().ToList();
+
+                if (string.IsNullOrEmpty(cells[0].InnerText) ||
+                    string.IsNullOrEmpty(cells[1].InnerText) ||
+                    string.IsNullOrEmpty(cells[2].InnerText)) continue;
+
+                var preparat = new Preparat()
                 {
-                    DataTable dt = new DataTable();
+                    Id = int.Parse(cells[0].InnerText),
+                    Name = cells[1].InnerText,
+                    Number = cells[2].InnerText,
+                };
 
-                    Table table = doc.MainDocumentPart.Document.Body.Elements<Table>().First();
+                // в тисячах, кома розділяє тисячі
+                string quantityText = cells[8].InnerText.Trim();
 
-                    // To get all rows from table  
-                    List<TableRow> rows = table.Elements<TableRow>().ToList();
+                decimal quantityDecimal = decimal.Parse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
 
-                    for (int i = rows.Count() - 1; i > 0; i--)
-                    {
-                        
-                        var cells = rows[i].Descendants<TableCell>().ToList();
-
-                        if (string.IsNullOrEmpty(cells[0].InnerText) ||
-                            string.IsNullOrEmpty(cells[1].InnerText) ||
-                            string.IsNullOrEmpty(cells[2].InnerText)) continue;
-
-                        var preparat = new Preparat()
-                        {
-                            Id = int.Parse(cells[0].InnerText),
-                            Name = cells[1].InnerText,
-                            Number = cells[2].InnerText,
-                        };
-
-                        // в тисячах, кома розділяє тисячі
-                        string quantityText = cells[8].InnerText.Trim();
-
-                        decimal quantityDecimal = decimal.Parse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
-
-                        preparat.Quantity = (int)(quantityDecimal * 1000);
+                preparat.Quantity = (int)(quantityDecimal * 1000);
 
 
-                        list.Insert(0, preparat);
+                list.Insert(0, preparat);
 
-                        if (preparat.Id == 1) break;
+                if (preparat.Id == 1) break;
 
-                    }
-                }
+
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-                
-            }
-
-
-            return list;
         }
+        catch (Exception e)
+        {
+            MessageBox.Show(e.Message);
+
+        }
+
+
+        return list;
     }
 }
