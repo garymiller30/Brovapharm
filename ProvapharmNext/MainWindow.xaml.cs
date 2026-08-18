@@ -145,15 +145,15 @@ namespace ProvapharmNext
 
 
 
-        private void TreeViewPreparats_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private async void TreeViewPreparats_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is PreparatFile file)
             {
                 TreeViewPreparats.ContextMenu = null;
 
-
-                PdfViewerFront.GetPreviewPage(file.File.FullName, 1);
-                PdfViewerBack.GetPreviewPage(file.File.FullName, 2);
+                await Task.WhenAll(
+                    PdfViewerFront.GetPreviewPageAsync(file.File.FullName, 1),
+                    PdfViewerBack.GetPreviewPageAsync(file.File.FullName, 2));
 
                 ImgBack.Source = file.Parent.BackPreview ?? defaultImage;
                 ImgFront.Source = file.Parent.FrontPreview ?? defaultImage;

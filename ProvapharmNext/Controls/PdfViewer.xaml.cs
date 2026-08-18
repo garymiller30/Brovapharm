@@ -1,13 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Windows.Data.Pdf;
-using Windows.Graphics.Display;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -18,40 +15,33 @@ namespace ProvapharmNext.Controls
     /// </summary>
     public partial class PdfViewer : UserControl
     {
-        
-
         public PdfViewer()
         {
             InitializeComponent();
-            
         }
 
-        public async void GetPreviewPage(string pathToFile, uint page)
+        public async Task GetPreviewPageAsync(string pathToFile, uint page)
         {
-            if (!string.IsNullOrEmpty(pathToFile))
-            {
-                //making sure it's an absolute path
+            if (string.IsNullOrEmpty(pathToFile))
+                return;
 
-                var pdfFile = await StorageFile.GetFileFromPathAsync(pathToFile);
-                var unwrap = await PdfDocument.LoadFromFileAsync(pdfFile);
-                await PdfToImages(unwrap, page);
-                //await StorageFile.GetFileFromPathAsync(pathToFile).AsTask()
-                //    //load pdf document on background thread
-                //    .ContinueWith(t => PdfDocument.LoadFromFileAsync(t.Result).AsTask()).Unwrap()
-                //    //display on UI Thread
-                //    .ContinueWith(t2 => PdfToImages( t2.Result,page), TaskScheduler.FromCurrentSynchronizationContext());
-            }
+            var pdfFile = await StorageFile.GetFileFromPathAsync(pathToFile);
+            var unwrap = await PdfDocument.LoadFromFileAsync(pdfFile);
+            await PdfToImages(unwrap, page);
         }
-        private async Task PdfToImages( PdfDocument pdfDoc, uint pageNo)
+
+        private async Task PdfToImages(PdfDocument pdfDoc, uint pageNo)
         {
             var items = PagesContainer.Items;
             items.Clear();
 
-            if (pdfDoc == null) return;
+            if (pdfDoc == null)
+                return;
 
-            if (pdfDoc.PageCount < pageNo) return;
-            
-            using (var page = pdfDoc.GetPage(pageNo-1))
+            if (pdfDoc.PageCount < pageNo)
+                return;
+
+            using (var page = pdfDoc.GetPage(pageNo - 1))
             {
                 var bitmap = await PageToBitmapAsync(page);
                 var image = new Image
@@ -65,13 +55,13 @@ namespace ProvapharmNext.Controls
             }
         }
 
-        private  async Task<BitmapImage> PageToBitmapAsync(PdfPage page)
+        private async Task<BitmapImage> PageToBitmapAsync(PdfPage page)
         {
             BitmapImage image = new BitmapImage();
-            
+
             using (var stream = new InMemoryRandomAccessStream())
             {
-                await page.RenderToStreamAsync(stream,new PdfPageRenderOptions()
+                await page.RenderToStreamAsync(stream, new PdfPageRenderOptions()
                 {
                     DestinationWidth = (uint)(page.Dimensions.MediaBox.Width * 2),
                     DestinationHeight = (uint)(page.Dimensions.MediaBox.Height * 2)
@@ -85,7 +75,5 @@ namespace ProvapharmNext.Controls
 
             return image;
         }
-
     }
-    
 }
