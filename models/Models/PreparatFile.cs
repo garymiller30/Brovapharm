@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using iTextSharp.text.pdf;
+using UglyToad.PdfPig;
 
 namespace models.Models
 {
@@ -34,13 +34,23 @@ namespace models.Models
         public PreparatFile(string file)
         {
             File = new FileInfo(file);
-
-            using (var reader = new PdfReader(file))
-            {
-                CntPages = reader.NumberOfPages;
-            }
+            CntPages = LoadPageCount(file);
         }
 
+        private static int LoadPageCount(string file)
+        {
+            try
+            {
+                using (var document = PdfDocument.Open(file))
+                {
+                    return document.NumberOfPages;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

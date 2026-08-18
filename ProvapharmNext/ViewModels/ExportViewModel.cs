@@ -1,13 +1,12 @@
-﻿using models.Models.json;
+using models.Models.json;
 using models.Service;
-using Newtonsoft.Json;
 using ProvapharmNext.Commands;
 using ProvapharmNext.Commons;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -60,7 +59,7 @@ namespace ProvapharmNext.ViewModels
                 fileItems.Add(fileItem);
             }
 
-            string jsonString = JsonConvert.SerializeObject(fileItems);
+            string jsonString = JsonSerializer.Serialize(fileItems);
 
             try
             {

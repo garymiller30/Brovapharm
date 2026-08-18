@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using System.Windows.Input;
 
 namespace ProvapharmNext.Commands
 {
     public class CommandBase : ICommand
     {
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
 
-        private Action<object> _execute;
-        private Func<object, bool> _canExecute;
+        private readonly Action<object> _execute;
+        private readonly Func<object, bool> _canExecute;
 
         public CommandBase(Action<object> execute, Func<object, bool> canExecute)
         {
@@ -20,14 +16,14 @@ namespace ProvapharmNext.Commands
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
-            return _canExecute(parameter);
+            return _canExecute(parameter!);
         }
 
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
-            _execute(parameter);
+            _execute(parameter!);
         }
     }
 }

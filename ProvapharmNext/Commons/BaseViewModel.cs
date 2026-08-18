@@ -11,7 +11,7 @@ namespace ProvapharmNext.Commons
     {
         private bool _isProcessing;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Прапорець, що вказує на обробку даних (для блокування UI)
@@ -34,9 +34,9 @@ namespace ProvapharmNext.Commons
         /// <summary>
         /// Подія для оновлення стану CanExecute
         /// </summary>
-        public event EventHandler OnCanExecuteChanged;
+        public event EventHandler? OnCanExecuteChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
