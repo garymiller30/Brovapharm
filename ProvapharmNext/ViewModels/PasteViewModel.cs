@@ -1,12 +1,9 @@
-﻿using models.Models;
+using models.Models;
 using models.Service;
 using ProvapharmNext.Commons;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace ProvapharmNext.ViewModels
@@ -25,21 +22,18 @@ namespace ProvapharmNext.ViewModels
             return true;
         }
 
-        private void Execute(object parameter)
+        private async void Execute(object parameter)
         {
             try
             {
                 var _preparats = PasteService.GetPreparatsFromClipboard();
-                SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats);
+                await Task.Run(() => SearchService.GetFilesForPreparats(new GlobalSettings(), _preparats));
                 _preparats.ToList().ForEach(Preparats.PreparatList.Add);
-
             }
             catch (Exception e)
             {
-
                 Notify.Error(e.Message);
             }
-
         }
     }
 }
