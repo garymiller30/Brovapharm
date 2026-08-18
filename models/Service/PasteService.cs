@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
-using iTextSharp.text;
 using models.Models;
 
 namespace models.Service
@@ -11,22 +9,14 @@ namespace models.Service
     {
         public static ObservableCollection<Preparat> GetPreparatsFromClipboard()
         {
-            ObservableCollection<Preparat> preparats = new ObservableCollection<Preparat>();
-            var rowStrings = Clipboard.GetText().Split(new[]{"\r\n"},StringSplitOptions.RemoveEmptyEntries);
+            var preparats = new ObservableCollection<Preparat>();
+            var rawText = Clipboard.GetText();
 
-            foreach (var rowString in rowStrings)
+            foreach (var preparat in PreparatParser.Parse(rawText))
             {
-                var row = rowString.Split('\t');
-
-                var preparat = new Preparat()
-                {
-                    Id = int.Parse(row[0]),
-                    Name = row[1],
-                    Number = row[2]
-                };
-
                 preparats.Add(preparat);
             }
+
             return preparats;
         }
     }

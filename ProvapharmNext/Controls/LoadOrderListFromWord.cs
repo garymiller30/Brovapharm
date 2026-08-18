@@ -1,9 +1,8 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using models.Models;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Windows;
 
@@ -17,57 +16,63 @@ public class LoadOrderListFromWord
         try
         {
             using var doc = WordprocessingDocument.Open(wordFile, false);
-            
-            if (doc == null || doc.MainDocumentPart == null || doc.MainDocumentPart.Document == null || doc.MainDocumentPart.Document.Body == null)
+
+            if (doc?.MainDocumentPart?.Document?.Body == null)
             {
                 MessageBox.Show("Не вдалося відкрити документ Word.");
                 return list;
             }
 
-            DataTable dt = new DataTable();
+            Table table = doc.MainDocumentPart.Document.Body.Elements<Table>().FirstOrDefault();
+            if (table == null)
+            {
+                MessageBox.Show("У документі не знайдено таблицю з даними.");
+                return list;
+            }
 
-            Table table = doc.MainDocumentPart.Document.Body.Elements<Table>().First();
-
-            // To get all rows from table  
             List<TableRow> rows = table.Elements<TableRow>().ToList();
 
-            for (int i = rows.Count() - 1; i > 0; i--)
+            for (int i = rows.Count - 1; i > 0; i--)
             {
-
                 var cells = rows[i].Descendants<TableCell>().ToList();
 
-                if (string.IsNullOrEmpty(cells[0].InnerText) ||
-                    string.IsNullOrEmpty(cells[1].InnerText) ||
-                    string.IsNullOrEmpty(cells[2].InnerText)) continue;
+                if (cells.Count < 9)
+                    continue;
+
+                var idText = cells[0].InnerText?.Trim();
+                var nameText = cells[1].InnerText?.Trim();
+                var numberText = cells[2].InnerText?.Trim();
+                var quantityText = cells[8].InnerText?.Trim();
+
+                if (string.IsNullOrEmpty(idText) || string.IsNullOrEmpty(nameText) || string.IsNullOrEmpty(numberText))
+                    continue;
+
+                if (!int.TryParse(idText, out var id))
+                    continue;
 
                 var preparat = new Preparat()
                 {
-                    Id = int.Parse(cells[0].InnerText),
-                    Name = cells[1].InnerText,
-                    Number = cells[2].InnerText,
+                    Id = id,
+                    Name = nameText,
+                    Number = numberText,
                 };
 
-                // в тисячах, кома розділяє тисячі
-                string quantityText = cells[8].InnerText.Trim();
-
-                decimal quantityDecimal = decimal.Parse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
-
-                preparat.Quantity = (int)(quantityDecimal * 1000);
-
+                if (!string.IsNullOrEmpty(quantityText) &&
+                    decimal.TryParse(quantityText, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint, null, out var quantityDecimal))
+                {
+                    preparat.Quantity = (int)(quantityDecimal * 1000);
+                }
 
                 list.Insert(0, preparat);
 
-                if (preparat.Id == 1) break;
-
-
+                if (preparat.Id == 1)
+                    break;
             }
         }
         catch (Exception e)
         {
             MessageBox.Show(e.Message);
-
         }
-
 
         return list;
     }
