@@ -97,6 +97,8 @@ namespace ProvapharmNext
 
             string targetDir = Path.Combine(_settings.ProductsRepository, "old");
             string targetFile = Path.Combine(targetDir, file.File.Name);
+            Directory.CreateDirectory(targetDir);
+
             if (File.Exists(targetFile))
             {
                 var newFileName = $"{Path.GetFileNameWithoutExtension(file.File.Name)}_{DateTime.Now:yyyyMMddHHmmss}{Path.GetExtension(file.File.Name)}";
@@ -107,9 +109,9 @@ namespace ProvapharmNext
             {
                 File.Move(file.File.FullName, targetFile);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-
+                Notify.Error($"Не вдалося перемістити файл в архів: {exception.Message}");
                 return false;
             }
 
